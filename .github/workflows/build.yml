@@ -3,6 +3,7 @@ name: Build
 on:
   push:
   workflow_dispatch:
+  pull_request:
 
 jobs:
   build:
@@ -29,3 +30,31 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         path: 'build/src/Release/*.dll'
+
+  release:
+    name: Release
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write
+      attestations: write
+    steps:
+      - name: Download from build
+        uses: actions/download-artifact@v4
+        with:
+          merge-multiple: true
+      - name: Publish release
+        id: publish
+        uses: softprops/action-gh-release@v1
+        with:
+          fail_on_unmatched_files: true
+          files: |
+            *.dll
+      - name: Attest Release Files
+        id: attest
+        uses: actions/attest-build-provenance@v1
+        with:
+          subject-path: |
+            *.dll
