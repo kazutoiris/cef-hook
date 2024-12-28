@@ -9,5 +9,18 @@
 
 // 添加要在此处预编译的标头
 #include "framework.h"
+#include <tchar.h>
+#include <Shlwapi.h>
+#include <string>
+
+#ifdef UNICODE
+typedef std::wstring string_t;
+#elif
+typedef std::string string_t;
+#endif
+
+extern bool endsWith(const TCHAR* szCurName, const TCHAR* szAppName);
+
+extern string_t IntToString(int value);
 
 #endif //PCH_H
